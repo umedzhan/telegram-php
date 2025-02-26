@@ -1,0 +1,11 @@
+{
+    "name": "umedzhan/telegram-php",
+    "description": "Telegram bot uchun PHP fayl",
+    "type": "library",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "TelegramPHP\\": ""
+        }
+    }
+}
