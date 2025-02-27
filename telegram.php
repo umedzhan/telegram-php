@@ -50,6 +50,26 @@ class Telegram {
 		$update = $this->getUpdate();
 		return isset($update[$this->Message()]['text']) ? $update['message']['text'] : '';
 	}
+
+	public function CallbackData() {
+		$update = $this->getUpdate();
+		return isset($update[$this->Message()]['data']) ? $update['callback_query']['data'] : '';
+	}
+
+	public function CallbackID() {
+		$update = $this->getUpdate();
+		return isset($update[$this->Message()]['message_id']) ? $update['callback_query']['message']['message_id'] : '';
+	}
+
+	public function Contact() {
+		$update = $this->getUpdate();
+		return isset($update[$this->Message()]['contact']) ? $update['message']['contact'] : '';
+	}
+
+	public function Location() {
+		$update = $this->getUpdate();
+		return isset($update[$this->Message()]['location']) ? $update['message']['location'] : '';
+	}
 	
 	public function sendMessage($chat_id, $text, $parse_mode = '') {
 		return $this->bot('sendMessage', [
