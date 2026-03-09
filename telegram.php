@@ -1,10 +1,12 @@
 <?php
 
 class Telegram {
-	public $token;
+	private $token;
+    public $update;
 	
 	public function __construct($token) {
 		$this->token = $token;
+        $this->update = json_decode(file_get_contents('php://input'), true);
 	}
 	
 	public function bot($method, $data = []) {
@@ -18,133 +20,96 @@ class Telegram {
 		curl_close($ch);
 		return json_decode($response, true);
 	}
-	
-	public function getUpdate() {
-		return json_decode(file_get_contents('php://input'), true);
-	}
-	
-	public function Message() {
-		if (isset($this->getUpdate()['message'])) {
-			return 'message';
-		} else if (isset($this->getUpdate()['callback_query'])) {
-			return 'callback_query';
-		} else {
-			return NULL;
-		}
-	}
-	
-	public function ChatID() {
-		$update = $this->getUpdate();
-		return $update[$this->Message()]['chat']['id'];
-	}
-	
-	public function FirstName() {
-		return $this->getUpdate()[$this->Message()]['chat']['first_name'];
-	}
-	
-	public function LastName() {
-		return $this->getUpdate()[$this->Message()]['chat']['last_name'] ?? NULL;
-	}
-	
-	public function Text() {
-		$update = $this->getUpdate();
-		return isset($update[$this->Message()]['text']) ? $update['message']['text'] : '';
-	}
 
-	public function CallbackData() {
-		$update = $this->getUpdate();
-		return isset($update[$this->Message()]['data']) ? $update['callback_query']['data'] : '';
-	}
+    public function token() {
+        return $this->token;
+    }
 
-	public function CallbackID() {
-		$update = $this->getUpdate();
-		return isset($update[$this->Message()]['message_id']) ? $update['callback_query']['message']['message_id'] : '';
-	}
+    public function ChatID() {
+        if ($this->isMessage()) {
+            return $this->update['message']['from']['id'];
+        } else if ($this->isQuery()) {
+            return $this->update['callback_query']['from']['id'];
+        } else if ($this->isBusinessMessage()) {
+            return $this->update['business_message']['chat']['id'];
+        }
+    }
 
-	public function Contact() {
-		$update = $this->getUpdate();
-		return isset($update[$this->Message()]['contact']) ? $update['message']['contact'] : '';
-	}
+    public function messageID() {
+        if ($this->isBusinessMessage()) {
+            return $this->update['business_message']['message_id'];
+        }
+    }
 
-	public function Location() {
-		$update = $this->getUpdate();
-		return isset($update[$this->Message()]['location']) ? $update['message']['location'] : '';
-	}
-	
-	public function sendMessage($chat_id, $text, $parse_mode = '') {
-		return $this->bot('sendMessage', [
-			'chat_id' => $chat_id,
-			'text' => $text,
-			'parse_mode' => $parse_mode
-		]);
-	}
+    public function BusinessConnectionID() {
+        if ($this->isBusinessMessage()) {
+            return $this->update['business_message']['business_connection_id'];
+        }
+    }
 
-	public function sendPhoto($chat_id, $photo, $caption = '') {
-		return $this->bot('sendPhoto', [
-			'chat_id' => $chat_id,
-			'photo' => $photo,
-			'caption' => $caption
-		]);
-	}
+    public function Username() {
+        if ($this->isMessage()) {
+            return $this->update['message']['from']['username'] ? $this->update['message']['from']['username'] : null;
+        }
+    }
 
-	public function sendVideo($chat_id, $video, $caption = '') {
-		return $this->bot('sendVideo', [
-			'chat_id' => $chat_id,
-			'video' => $video,
-			'caption' => $caption
-		]);
-	}
+    public function isMessage() {
+        return isset($this->update['message']);
+    }
+    
+    public function isQuery() {
+        return isset($this->update['callback_query']);
+    }
 
-	public function sendAudio($chat_id, $audio, $caption = '') {
-		return $this->bot('sendAudio', [
-			'chat_id' => $chat_id,
-			'audio' => $audio,
-			'caption' => $caption
-		]);
-	}
+    public function isBusinessMessage() {
+        return isset($this->update['business_message']);
+    }
 
-	public function sendDocument($chat_id, $document, $caption = '') {
-		return $this->bot('sendDocument', [
-			'chat_id' => $chat_id,
-			'document' => $document,
-			'caption' => $caption
-		]);
-	}
+    public function isMessageContact() {
+        return $this->update['message']['contact'] ? true : false;
+    }
 
-	public function sendSticker($chat_id, $sticker) {
-		return $this->bot('sendSticker', [
-			'chat_id' => $chat_id,
-			'sticker' => $sticker
-		]);
-	}
+    public function isChannelPost() {
+        return $this->update['channel_post'] ? true : false;
+    }
 
-	public function sendAnimation($chat_id, $animation, $caption = '') {
-		return $this->bot('sendAnimation', [
-			'chat_id' => $chat_id,
-			'animation' => $animation,
-			'caption' => $caption
-		]);
-	}
+    public function Text() {
+        if ($this->isMessage()) {
+            return isset($this->update['message']['text']) ? $this->update['message']['text'] : '';
+        } else if ($this->isQuery()) {
+            return isset($this->update['callback_query']['data']) ? $this->update['callback_query']['data'] : '';
+        } else if ($this->isBusinessMessage()) {
+            return isset($this->update['business_message']['text']) ? $this->update['business_message']['text'] : '';
+        }
+    }
 
-	public function sendVoice($chat_id, $voice) {
-		return $this->bot('sendVoice', [
-			'chat_id' => $chat_id,
-			'voice' => $voice
-		]);
-	}
+    public function FirstName() {
+        if ($this->isMessage()) {
+            return $this->update['message']['chat']['first_name'];
+        } else if ($this->isQuery()) {
+            return $this->update['callback_query']['from']['first_name'];
+        }
+    }
 
-	public function sendLocation($chat_id, $latitude, $longitude) {
-		return $this->bot('sendLocation', [
-			'chat_id' => $chat_id,
-			'latitude' => $latitude,
-			'longitude' => $longitude
-		]);
-	}
+    public function PhoneNumber() {
+        return $this->update['message']['contact']['phone_number'] ? $this->update['message']['contact']['phone_number'] : '';
+    }
 
-	public function sendChatAction($chat_id, $action) {
-		return $this->bot('sendChatAction', [
-			'chat_id' => $chat_id,
-			'action' => $action
-		]);
-	}
+    public function sendMessage($chat_id, $text, $reply_markup=null, $parse_mode=null, $business_connection_id = null) {
+        return $this->bot('sendMessage', [
+            'chat_id' => $chat_id,
+            'text' => $text,
+            'reply_markup' => $reply_markup ? json_encode($reply_markup) : '',
+            'parse_mode' => $parse_mode,
+            'business_connection_id' => $business_connection_id
+        ]);
+    }
+
+    public function sendDocument($chat_id, $document, $caption=null) {
+        $this->bot('sendDocument', [
+            'chat_id' => $chat_id,
+            'document' => $document,
+            'caption' => $caption
+        ]);
+    }
 }
