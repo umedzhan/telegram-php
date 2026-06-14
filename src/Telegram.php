@@ -1,5 +1,7 @@
 <?php
 
+namespace Telegram\Bot;
+
 use Telegram\Bot\Interfaces\ReplyMarkup;
 use Telegram\Bot\Types\LinkPreviewOptions;
 use Telegram\Bot\Types\InputRichMessage;
