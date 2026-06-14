@@ -1,0 +1,14 @@
+{
+  "name": "umedzhan/telegram-php",
+  "description": "Telegram Bot API wrapper",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Telegram\\Bot\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.0"
+  }
+}
