@@ -5,6 +5,11 @@ interface ReplyMarkup
     public function toArray(): array;
 }
 
+interface InputFile
+{
+    public function toArray(): array;
+}
+
 class Telegram
 {
     public array $update = [];
@@ -191,12 +196,146 @@ class Telegram
         );
     }
 
-    public function sendDocument(int|string $chat_id, string $document, $caption = null)
+    public function sendDocument(
+        int|string $chat_id,
+        InputFile|string $document,
+        ?string $business_connection_id = null,
+        ?int $message_thread_id = null,
+        ?int $direct_messages_topic_id = null,
+        InputFile|string|null $thumbnail = null,
+        ?string $caption = null,
+        ?string $parse_mode = null,
+        ?MessageEntity $caption_entities = null,
+        ?bool $disable_content_type_detection = null,
+        ?bool $disable_notification = null,
+        ?bool $protect_content = null,
+        ?bool $allow_paid_broadcast = null,
+        ?string $message_effect_id = null,
+        ?SuggestedPostParameters $suggested_post_parameters = null,
+        ?ReplyParameters $reply_parameters = null,
+        ?ReplyMarkup $reply_markup = null
+    ): array {
+        return $this->bot(
+            'sendDocument',
+            array_filter(
+                [
+                    'chat_id' => $chat_id,
+                    'document' => $document,
+                    'business_connection_id' => $business_connection_id,
+                    'message_thread_id' => $message_thread_id,
+                    'direct_messages_topic_id' => $direct_messages_topic_id,
+                    'thumbnail' => $thumbnail instanceof InputFile
+                        ? $thumbnail->toArray()
+                        : $thumbnail,
+                    'caption' => $caption,
+                    'parse_mode' => $parse_mode,
+                    'caption_entities' => $caption_entities?->toArray(),
+                    'disable_content_type_detection' => $disable_content_type_detection,
+                    'disable_notification' => $disable_notification,
+                    'protect_content' => $protect_content,
+                    'allow_paid_broadcast' => $allow_paid_broadcast,
+                    'message_effect_id' => $message_effect_id,
+                    'suggested_post_parameters' => $suggested_post_parameters?->toArray(),
+                    'reply_parameters' => $reply_parameters?->toArray(),
+                    'reply_markup' => $reply_markup?->toArray()
+                ]
+            )
+        );
+    }
+}
+
+class ReplyParameters
+{
+    public function __construct(
+        public int $message_id,
+        public int|string|null $chat_id = null,
+        public ?bool $allow_sending_without_reply = null,
+        public ?string $quote = null,
+        public ?string $quote_parse_mode = null,
+        public ?MessageEntity $quote_entities = null,
+        public ?int $quote_position = null,
+        public ?int $checklist_task_id = null,
+        public ?string $poll_option_id = null
+    ) {
+    }
+
+    public function toArray(): array
     {
-        $this->bot('sendDocument', [
-            'chat_id' => $chat_id,
-            'document' => $document,
-            'caption' => $caption
+        return array_filter([
+            'message_id' => $this->message_id,
+            'chat_id' => $this->chat_id,
+            'allow_sending_without_reply' => $this->allow_sending_without_reply,
+            'quote' => $this->quote,
+            'quote_parse_mode' => $this->quote_parse_mode,
+            'quote_entities' => $this->quote_entities?->toArray(),
+            'quote_position' => $this->quote_position,
+            'checklist_task_id' => $this->checklist_task_id,
+            'poll_option_id' => $this->poll_option_id
+        ]);
+    }
+}
+
+class SuggestedPostParameters
+{
+    public function __construct(
+        public ?SuggestedPostPrice $price = null,
+        public ?int $send_date = null
+    ) {
+    }
+
+    public function toArray(): array
+    {
+        return array_filter([
+            'price' => $this->price?->toArray(),
+            'send_date' => $this->send_date
+        ]);
+    }
+}
+
+class SuggestedPostPrice
+{
+    public function __construct(
+        public string $currency,
+        public int $amount
+    ) {
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'currency' => $this->currency,
+            'amount' => $this->amount
+        ];
+    }
+}
+
+class MessageEntity
+{
+    public function __construct(
+        public string $type,
+        public int $offset,
+        public int $length,
+        public ?string $url = null,
+        public ?array $user = null,
+        public ?string $language = null,
+        public ?string $custom_emoji_id = null,
+        public ?int $unix_time = null,
+        public ?string $date_time_format = null
+    ) {
+    }
+
+    public function toArray(): array
+    {
+        return array_filter([
+            'type' => $this->type,
+            'offset' => $this->offset,
+            'length' => $this->length,
+            'url' => $this->url,
+            'user' => $this->user,
+            'language' => $this->language,
+            'custom_emoji_id' => $this->custom_emoji_id,
+            'unix_time' => $this->unix_time,
+            'date_time_format' => $this->date_time_format
         ]);
     }
 }
