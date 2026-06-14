@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Interfaces;
+namespace Telegram\Bot\Interfaces;
 
 interface ReplyMarkup
 {

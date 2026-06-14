@@ -8,6 +8,7 @@ use Telegram\Bot\Types\InputRichMessage;
 use Telegram\Bot\Types\MessageEntity;
 use Telegram\Bot\Types\SuggestedPostParameters;
 use Telegram\Bot\Types\ReplyParameters;
+use CURLFile;
 
 class Telegram
 {
