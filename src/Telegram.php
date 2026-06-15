@@ -20,7 +20,7 @@ class Telegram
         $this->update = json_decode(file_get_contents('php://input'), true) ?? [];
     }
 
-    public function bot(string $method, $data = [])
+    public function bot(string $method, array $data = [])
     {
         $token = $this->token;
         $url = "https://api.telegram.org/bot$token/$method";
@@ -156,7 +156,8 @@ class Telegram
                     'suggested_post_parameters' => $suggested_post_parameters,
                     'reply_parameters' => $reply_parameters,
                     'reply_markup' => $reply_markup ? json_encode($reply_markup->toArray()) : null
-                ]
+                ],
+                fn ($v) => $v !== null
             )
         );
     }
@@ -191,8 +192,26 @@ class Telegram
                     'suggested_post_parameters' => $suggested_post_parameters,
                     'reply_parameters' => $reply_parameters,
                     'reply_markup' => $reply_markup
-                ]
+                ],
+                fn ($v) => $v !== null
             )
+        );
+    }
+
+    public function sendRichMessageDraft(
+        int|string $chat_id,
+        int $draft_id,
+        InputRichMessage $rich_message,
+        ?int $message_thread_id = null
+    ): array {
+        return $this->bot(
+            'sendRichMessageDraft',
+            array_filter([
+                'chat_id' => $chat_id,
+                'draft_id' => $draft_id,
+                'rich_message' => json_encode($rich_message?->toArray()),
+                'message_thread_id' => $message_thread_id
+            ], fn ($v) => $v !== null)
         );
     }
 
@@ -242,7 +261,8 @@ class Telegram
                     'reply_markup' => $reply_markup?->toArray()
                         ? json_encode($reply_markup?->toArray())
                         : null
-                ]
+                ],
+                fn ($v) => $v !== null
             )
         );
     }
@@ -272,7 +292,7 @@ class Telegram
                 'protect_content' => $protect_content,
                 'message_effect_id' => $message_effect_id,
                 'suggested_post_parameters' => $suggested_post_parameters?->toArray() ? json_encode($suggested_post_parameters?->toArray()) : null,
-            ])
+            ], fn ($v) => $v !== null)
         );
     }
 
@@ -295,7 +315,7 @@ class Telegram
                 'direct_messages_topic_id' => $direct_messages_topic_id,
                 'disable_notification' => $disable_notification,
                 'protect_content' => $protect_content
-            ])
+            ], fn ($v) => $v !== null)
         );
     }
 
@@ -338,7 +358,7 @@ class Telegram
                 'suggested_post_parameters' => $suggested_post_parameters?->toArray(),
                 'reply_parameters' => $reply_parameters?->toArray(),
                 'reply_markup' => $reply_markup?->toArray() ? json_encode($reply_markup?->toArray()) : null
-            ])
+            ], fn ($v) => $v !== null)
         );
     }
 
@@ -363,7 +383,7 @@ class Telegram
                 'disable_notification' => $disable_notification,
                 'protect_content' => $protect_content,
                 'remove_caption' => $remove_caption
-            ])
+            ], fn ($v) => $v !== null)
         );
     }
 
@@ -403,10 +423,250 @@ class Telegram
                 'protect_content' => $protect_content,
                 'allow_paid_broadcast' => $allow_paid_broadcast,
                 'message_effect_id' => $message_effect_id,
-                'suggested_post_parameters' => $suggested_post_parameters?->toArray() ? json_encode($suggested_post_parameters?->toArray()) : null,
-                'reply_parameters' => $reply_parameters?->toArray() ? json_encode($reply_parameters?->toArray()) : null,
-                'reply_markup' => $reply_markup?->toArray() ? json_encode($reply_markup?->toArray()) : null
-            ])
+                'suggested_post_parameters' => $suggested_post_parameters?->toArray()
+                    ? json_encode($suggested_post_parameters?->toArray())
+                    : null,
+                'reply_parameters' => $reply_parameters?->toArray()
+                    ? json_encode($reply_parameters?->toArray())
+                    : null,
+                'reply_markup' => $reply_markup?->toArray()
+                    ? json_encode($reply_markup?->toArray())
+                    : null
+            ], fn ($v) => $v !== null)
         );
     }
+
+    public function sendLivePhoto(
+        int|string $chat_id,
+        CURLFile|string $live_photo,
+        CURLFile|string $photo,
+        ?string $business_connection_id = null,
+        ?int $message_thread_id = null,
+        ?int $direct_messages_topic_id = null,
+        ?string $caption = null,
+        ?string $parse_mode = null,
+        ?MessageEntity $caption_entities = null,
+        ?bool $show_caption_above_media = null,
+        ?bool $has_spoiler = null,
+        ?bool $disable_notification = null,
+        ?bool $protect_content = null,
+        ?bool $allow_paid_broadcast = null,
+        ?string $message_effect_id = null,
+        ?SuggestedPostParameters $suggested_post_parameters = null,
+        ?ReplyParameters $reply_parameters = null,
+        ?ReplyMarkup $reply_markup = null
+    ): array {
+        return $this->bot(
+            'sendLivePhoto',
+            array_filter([
+                'chat_id' => $chat_id,
+                'live_photo' => $live_photo,
+                'photo' => $photo,
+                'business_connection_id' => $business_connection_id,
+                'message_thread_id' => $message_thread_id,
+                'direct_messages_topic_id' => $direct_messages_topic_id,
+                'caption' => $caption,
+                'parse_mode' => $parse_mode,
+                'caption_entities' => $caption_entities?->toArray()
+                    ? json_encode($caption_entities->toArray())
+                    : null,
+                'show_caption_above_media' => $show_caption_above_media,
+                'has_spoiler' => $has_spoiler,
+                'disable_notification' => $disable_notification,
+                'protect_content' => $protect_content,
+                'allow_paid_broadcast' => $allow_paid_broadcast,
+                'message_effect_id' => $message_effect_id,
+                'suggested_post_parameters' => $suggested_post_parameters?->toArray()
+                    ? json_encode($suggested_post_parameters->toArray())
+                    : null,
+                'reply_parameters' => $reply_parameters?->toArray()
+                    ? json_encode($reply_parameters->toArray())
+                    : null,
+                'reply_markup' => $reply_markup?->toArray()
+                    ? json_encode($reply_markup->toArray())
+                    : null
+            ], fn ($v) => $v !== null)
+        );
+    }
+
+    public function sendAudio(
+        int|string $chat_id,
+        CURLFile|string $audio,
+        ?string $business_connection_id = null,
+        ?int $message_thread_id = null,
+        ?int $direct_messages_topic_id = null,
+        ?string $caption = null,
+        ?string $parse_mode = null,
+        ?MessageEntity $caption_entities = null,
+        ?int $duration = null,
+        ?string $performer = null,
+        ?string $title = null,
+        CURLFile|string|null $thumbnail = null,
+        ?bool $disable_notification = null,
+        ?bool $protect_content = null,
+        ?bool $allow_paid_broadcast = null,
+        ?string $message_effect_id = null,
+        ?SuggestedPostParameters $suggested_post_parameters = null,
+        ?ReplyParameters $reply_parameters = null,
+        ?ReplyMarkup $reply_markup = null
+    ): array {
+        return $this->bot(
+            'sendAudio',
+            array_filter([
+                'chat_id' => $chat_id,
+                'audio' => $audio,
+                'business_connection_id' => $business_connection_id,
+                'message_thread_id' => $message_thread_id,
+                'direct_messages_topic_id' => $direct_messages_topic_id,
+                'caption' => $caption,
+                'parse_mode' => $parse_mode,
+                'caption_entities' => $caption_entities?->toArray()
+                    ? json_encode($caption_entities->toArray())
+                    : null,
+                'duration' => $duration,
+                'performer' => $performer,
+                'title' => $title,
+                'thumbnail' => $thumbnail,
+                'disable_notification' => $disable_notification,
+                'protect_content' => $protect_content,
+                'allow_paid_broadcast' => $allow_paid_broadcast,
+                'message_effect_id' => $message_effect_id,
+                'suggested_post_parameters' => $suggested_post_parameters?->toArray()
+                    ? json_encode($suggested_post_parameters->toArray())
+                    : null,
+                'reply_parameters' => $reply_parameters?->toArray()
+                    ? json_encode($reply_parameters->toArray())
+                    : null,
+                'reply_markup' => $reply_markup?->toArray()
+                    ? json_encode($reply_markup->toArray())
+                    : null
+            ], fn ($v) => $v !== null)
+        );
+    }
+
+    public function sendVideo(
+        int|string $chat_id,
+        CURLFile|string $video,
+        ?string $business_connection_id = null,
+        ?int $message_thread_id = null,
+        ?int $direct_messages_topic_id = null,
+        ?int $duration = null,
+        ?int $width = null,
+        ?int $height = null,
+        CURLFile|string|null $thumbnail = null,
+        CURLFile|string|null $cover = null,
+        ?int $start_timestamp = null,
+        ?string $caption = null,
+        ?string $parse_mode = null,
+        ?MessageEntity $caption_entities = null,
+        ?bool $show_caption_above_media = null,
+        ?bool $has_spoiler = null,
+        ?bool $supports_streaming = null,
+        ?bool $disable_notification = null,
+        ?bool $protect_content = null,
+        ?bool $allow_paid_broadcast = null,
+        ?string $message_effect_id = null,
+        ?SuggestedPostParameters $suggested_post_parameters = null,
+        ?ReplyParameters $reply_parameters = null,
+        ?ReplyMarkup $reply_markup = null
+    ): array {
+        return $this->bot(
+            'sendVideo',
+            array_filter([
+                'chat_id' => $chat_id,
+                'video' => $video,
+                'business_connection_id' => $business_connection_id,
+                'message_thread_id' => $message_thread_id,
+                'direct_messages_topic_id' => $direct_messages_topic_id,
+                'duration' => $duration,
+                'width' => $width,
+                'height' => $height,
+                'thumbnail' => $thumbnail,
+                'cover' => $cover,
+                'start_timestamp' => $start_timestamp,
+                'caption' => $caption,
+                'parse_mode' => $parse_mode,
+                'caption_entities' => $caption_entities?->toArray()
+                    ? json_encode($caption_entities->toArray())
+                    : null,
+                'show_caption_above_media' => $show_caption_above_media,
+                'has_spoiler' => $has_spoiler,
+                'supports_streaming' => $supports_streaming,
+                'disable_notification' => $disable_notification,
+                'protect_content' => $protect_content,
+                'allow_paid_broadcast' => $allow_paid_broadcast,
+                'message_effect_id' => $message_effect_id,
+                'suggested_post_parameters' => $suggested_post_parameters?->toArray()
+                    ? json_encode($suggested_post_parameters->toArray())
+                    : null,
+                'reply_parameters' => $reply_parameters?->toArray()
+                    ? json_encode($reply_parameters->toArray())
+                    : null,
+                'reply_markup' => $reply_markup?->toArray()
+                    ? json_encode($reply_markup->toArray())
+                    : null
+            ], fn ($v) => $v !== null)
+        );
+    }
+
+    public function sendAnimation(
+        int|string $chat_id,
+        CURLFile|string $animation,
+        ?string $business_connection_id = null,
+        ?int $message_thread_id = null,
+        ?int $direct_messages_topic_id = null,
+        ?int $duration = null,
+        ?int $width = null,
+        ?int $height = null,
+        CURLFile|string|null $thumbnail = null,
+        ?string $caption = null,
+        ?string $parse_mode = null,
+        ?MessageEntity $caption_entities = null,
+        ?bool $show_caption_above_media = null,
+        ?bool $has_spoiler = null,
+        ?bool $disable_notification = null,
+        ?bool $protect_content = null,
+        ?bool $allow_paid_broadcast = null,
+        ?string $message_effect_id = null,
+        ?SuggestedPostParameters $suggested_post_parameters = null,
+        ?ReplyParameters $reply_parameters = null,
+        ?ReplyMarkup $reply_markup = null
+    ): array {
+        return $this->bot(
+            'sendAnimation',
+            array_filter([
+                'chat_id' => $chat_id,
+                'animation' => $animation,
+                'business_connection_id' => $business_connection_id,
+                'message_thread_id' => $message_thread_id,
+                'direct_messages_topic_id' => $direct_messages_topic_id,
+                'duration' => $duration,
+                'width' => $width,
+                'height' => $height,
+                'thumbnail' => $thumbnail,
+                'caption' => $caption,
+                'parse_mode' => $parse_mode,
+                'caption_entities' => $caption_entities?->toArray()
+                    ? json_encode($caption_entities->toArray())
+                    : null,
+                'show_caption_above_media' => $show_caption_above_media,
+                'has_spoiler' => $has_spoiler,
+                'disable_notification' => $disable_notification,
+                'protect_content' => $protect_content,
+                'allow_paid_broadcast' => $allow_paid_broadcast,
+                'message_effect_id' => $message_effect_id,
+                'suggested_post_parameters' => $suggested_post_parameters?->toArray()
+                    ? json_encode($suggested_post_parameters->toArray())
+                    : null,
+                'reply_parameters' => $reply_parameters?->toArray()
+                    ? json_encode($reply_parameters->toArray())
+                    : null,
+                'reply_markup' => $reply_markup?->toArray()
+                    ? json_encode($reply_markup->toArray())
+                    : null
+            ], fn ($v) => $v !== null)
+        );
+    }
+
+
 }
