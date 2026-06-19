@@ -18,16 +18,10 @@ class LinkPreviewOptions
         $this->show_above_text = $show_above_text;
     }
 
-    public function toArray(): array
+    public static function fromArray(array $data): self
     {
-        return array_filter(
-            [
-                'is_disabled' => $this->is_disabled,
-                'url' => $this->url,
-                'prefer_small_media' => $this->prefer_small_media,
-                'prefer_large_media' => $this->prefer_large_media,
-                'show_above_text' => $this->show_above_text
-            ]
+        return new self(
+            is_disabled: $data['is_disabled'],
         );
     }
 }

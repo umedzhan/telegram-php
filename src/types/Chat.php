@@ -16,17 +16,17 @@ class Chat
     ) {
     }
 
-    public function toArray(): array
+    public static function fromArray(array $data): self
     {
-        return array_filter([
-            'id' => $this->id,
-            'type' => $this->type,
-            'title' => $this->title,
-            'username' => $this->username,
-            'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
-            'is_forum' => $this->is_forum,
-            'is_direct_messages' => $this->is_direct_messages
-        ], fn ($v) => $v !== null);
+        return new self(
+            id: $data['id'],
+            type: $data['type'],
+            title: $data['title'] ?? null,
+            username: $data['username'] ?? null,
+            first_name: $data['first_name'] ?? null,
+            last_name: $data['last_name'] ?? null,
+            is_forum: $data['is_forum'] ?? null,
+            is_direct_messages: $data['is_direct_messages'] ?? null
+        );
     }
 }
